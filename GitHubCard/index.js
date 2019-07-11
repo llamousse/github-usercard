@@ -54,6 +54,33 @@
 
 const followersArray = [];
 
+axios.get(`https://api.github.com/users/llamousse/followers`)
+  .then(data => {
+    console.log('Works! Here is the list of your followers: ', data.data);
+    const followersData = data.data;
+    followersData.forEach(followerData => {
+      followersArray.push(followerData.login);
+    })
+    // console.log(followersArray);
+
+    followersArray.forEach(follower => {
+      axios.get(`https://api.github.com/users/${follower}`)
+      .then(datas => {  
+        console.log('Follower info: ', datas.data);
+        const cards2 = document.querySelector('.cards');
+        cards2.appendChild(createCard(datas.data));
+      })
+      .catch(err => {
+        console.log('Could not retrieve follower info: ', err);
+      })
+    })    
+
+  })
+
+  .catch(err => {
+    console.log('There was a problem retrieving your list of followers: ', err);
+  })
+
 axios.get(`https://api.github.com/users/llamousse`)
   .then(data => {
     console.log('Success!', data);
@@ -90,10 +117,11 @@ function createCard(data) {
   name.textContent = data.name;
   username.textContent = data.login;
   location.textContent = `Location: ${data.location}`;
-  profilePage.href = data.html_url;
+  profilePage.innerHTML = `Profile: <a href=${data.html_url}>${data.html_url}</a>`;
   followers.textContent = `Followers: ${data.followers}`;
   following.textContent = `Following: ${data.following}`;
-
+  bio.textContent = `Bio: ${data.bio}`;
+  
   // put together
   card.appendChild(userImg);
   card.appendChild(cardInfo);
