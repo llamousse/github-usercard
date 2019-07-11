@@ -52,8 +52,20 @@
   bigknell
 */
 
-const followersArray = [];
+// GET own profile info
+axios.get(`https://api.github.com/users/llamousse`)
+  .then(data => {
+    console.log('Success!', data);
+    const cards = document.querySelector('.cards');
+    cards.appendChild(createCard(data.data));
 
+  })
+  .catch(err => {
+    console.log('Error: ', err);
+  })
+
+// GET follower info
+const followersArray = [];
 axios.get(`https://api.github.com/users/llamousse/followers`)
   .then(data => {
     console.log('Works! Here is the list of your followers: ', data.data);
@@ -65,31 +77,20 @@ axios.get(`https://api.github.com/users/llamousse/followers`)
 
     followersArray.forEach(follower => {
       axios.get(`https://api.github.com/users/${follower}`)
-      .then(datas => {  
-        console.log('Follower info: ', datas.data);
-        const cards2 = document.querySelector('.cards');
-        cards2.appendChild(createCard(datas.data));
-      })
-      .catch(err => {
-        console.log('Could not retrieve follower info: ', err);
-      })
-    })    
+        .then(datas => {
+          console.log('Follower info: ', datas.data);
+          const cards2 = document.querySelector('.cards');
+          cards2.appendChild(createCard(datas.data));
+        })
+        .catch(err => {
+          console.log('Could not retrieve follower info: ', err);
+        })
+    })
 
   })
 
   .catch(err => {
     console.log('There was a problem retrieving your list of followers: ', err);
-  })
-
-axios.get(`https://api.github.com/users/llamousse`)
-  .then(data => {
-    console.log('Success!', data);
-    const cards = document.querySelector('.cards');
-    cards.appendChild(createCard(data.data));
-
-  })
-  .catch(err => {
-    console.log('Error: ', err);
   })
 
 function createCard(data) {
@@ -105,7 +106,7 @@ function createCard(data) {
   const followers = document.createElement('p');
   const following = document.createElement('p');
   const bio = document.createElement('p');
-  
+
   // set the styles
   card.classList.add('card');
   cardInfo.classList.add('card-info');
@@ -121,7 +122,7 @@ function createCard(data) {
   followers.textContent = `Followers: ${data.followers}`;
   following.textContent = `Following: ${data.following}`;
   bio.textContent = `Bio: ${data.bio}`;
-  
+
   // put together
   card.appendChild(userImg);
   card.appendChild(cardInfo);
