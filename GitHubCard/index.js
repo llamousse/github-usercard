@@ -1,5 +1,5 @@
 /* Step 1: using axios, send a GET request to the following URL 
-           (replacing the palceholder with your Github name):
+           (replacing the placeholder with your Github name):
            https://api.github.com/users/<your name>
 */
 
@@ -23,8 +23,6 @@
           Using that array, iterate over it, requesting data for each user, creating a new card for each
           user, and adding that card to the DOM.
 */
-
-const followersArray = [];
 
 /* Step 3: Create a function that accepts a single object as its only argument,
           Using DOM methods and properties, create a component that will return the following DOM element:
@@ -53,3 +51,89 @@ const followersArray = [];
   luishrd
   bigknell
 */
+
+// GET own profile info
+axios.get(`https://api.github.com/users/llamousse`)
+  .then(data => {
+    console.log('Success!', data);
+    const cards = document.querySelector('.cards');
+    cards.appendChild(createCard(data.data));
+
+  })
+  .catch(err => {
+    console.log('Error: ', err);
+  })
+
+// GET follower info
+const followersArray = [];
+axios.get(`https://api.github.com/users/llamousse/followers`)
+  .then(data => {
+    console.log('Works! Here is the list of your followers: ', data.data);
+    const followersData = data.data;
+    followersData.forEach(followerData => {
+      followersArray.push(followerData.login);
+    })
+    // console.log(followersArray);
+
+    followersArray.forEach(follower => {
+      axios.get(`https://api.github.com/users/${follower}`)
+        .then(datas => {
+          console.log('Follower info: ', datas.data);
+          const cards2 = document.querySelector('.cards');
+          cards2.appendChild(createCard(datas.data));
+        })
+        .catch(err => {
+          console.log('Could not retrieve follower info: ', err);
+        })
+    })
+
+  })
+
+  .catch(err => {
+    console.log('There was a problem retrieving your list of followers: ', err);
+  })
+
+function createCard(data) {
+  // create the elements
+  const card = document.createElement('div');
+  const userImg = document.createElement('img');
+  const cardInfo = document.createElement('div');
+  const name = document.createElement('h3');
+  const username = document.createElement('p');
+  const location = document.createElement('p');
+  const profile = document.createElement('p');
+  const profilePage = document.createElement('a');
+  const followers = document.createElement('p');
+  const following = document.createElement('p');
+  const bio = document.createElement('p');
+
+  // set the styles
+  card.classList.add('card');
+  cardInfo.classList.add('card-info');
+  name.classList.add('name');
+  username.classList.add('username');
+
+  // set the content
+  userImg.src = data.avatar_url;
+  name.textContent = data.name;
+  username.textContent = data.login;
+  location.textContent = `Location: ${data.location}`;
+  profilePage.innerHTML = `Profile: <a href=${data.html_url}>${data.html_url}</a>`;
+  followers.textContent = `Followers: ${data.followers}`;
+  following.textContent = `Following: ${data.following}`;
+  bio.textContent = `Bio: ${data.bio}`;
+
+  // put together
+  card.appendChild(userImg);
+  card.appendChild(cardInfo);
+  cardInfo.appendChild(name);
+  cardInfo.appendChild(username);
+  cardInfo.appendChild(location);
+  cardInfo.appendChild(profile);
+  profile.appendChild(profilePage);
+  cardInfo.appendChild(followers);
+  cardInfo.appendChild(following);
+  cardInfo.appendChild(bio);
+
+  return card;
+}
